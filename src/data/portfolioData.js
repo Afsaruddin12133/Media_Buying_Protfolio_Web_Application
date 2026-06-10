@@ -9,7 +9,8 @@ export const portfolioData = {
     aboutParagraph2: "By mapping out extensive tracking frameworks, I prevent signal loss caused by browser privacy policies. I balance these hard analytics with attention-grabbing video editing strategies to design structural funnels that fight campaign ad fatigue natively.",
     heroVideoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     ctaPrimary: { text: "Contact Me", link: "#contact" },
-    ctaSecondary: { text: "Schedule a Meeting", link: "https://calendly.com" }, // User placeholder
+    ctaSecondary: { text: "Schedule a Meeting", link: "#contact" },
+    whatsappUrl: "https://wa.me/8801234567890", // TODO: Replace with your actual WhatsApp number
   },
   stats: [
     { value: "3+", label: "Years Experience" },

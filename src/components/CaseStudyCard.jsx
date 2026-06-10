@@ -6,7 +6,7 @@ export default function CaseStudyCard({ study }) {
   const { title, image, category, metrics, details, tag } = study;
 
   return (
-    <div className="bg-brandCard border border-gray-800 flex flex-col justify-between p-6 transition-all duration-300 hover:border-brandAccent group">
+    <div className="bg-brandCard border border-gray-800 flex flex-col justify-between p-6 transition-all duration-300 hover:border-brandAccent group glass-card hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
       <div>
         {/* Category & Badge */}
         <div className="flex justify-between items-center mb-3">
@@ -74,7 +74,7 @@ export default function CaseStudyCard({ study }) {
       {/* Action Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-3 border border-brandAccent text-brandAccent text-3xs font-bold uppercase tracking-wider transition-all duration-300 hover:bg-brandAccent hover:text-brandText flex items-center justify-center space-x-1"
+        className="w-full py-3 border border-brandAccent text-brandAccent text-3xs font-bold uppercase tracking-wider transition-all duration-300 hover:bg-brandAccent hover:text-brandText flex items-center justify-center space-x-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
       >
         <span>{isOpen ? 'Hide Details' : 'Read Full Case Study'}</span>
         {isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
