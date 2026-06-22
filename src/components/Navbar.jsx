@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { portfolioData } from '../data/portfolioData';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -18,88 +19,103 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
+
   const navLinks = [
-    { name: 'About', href: '#about' },
-    {
-      name: 'Media Buying',
-      href: '#media-buying',
-      dropdown: [
-        { name: 'Meta Ads', href: '#media-buying' },
-        { name: 'Google Ads', href: '#media-buying' },
-        { name: 'TikTok Ads', href: '#media-buying' },
-        { name: 'Conversion Tracking', href: '#media-buying' },
-      ],
+    { name: 'Home', href: '/' },
+    { 
+      name: 'Portfolio', 
+      href: '/#portfolio',
+      subLinks: [
+        { name: 'Direct Response', href: '/?filter=Direct%20Response#portfolio' },
+        { name: 'Brand Awareness', href: '/?filter=Brand%20Awareness#portfolio' },
+        { name: 'Short-Form', href: '/?filter=Short-Form#portfolio' },
+        { name: 'UGC', href: '/?filter=UGC#portfolio' },
+        { name: 'Motion Graphics', href: '/?filter=Motion%20Graphics#portfolio' }
+      ]
     },
-    { name: 'Video Editing', href: '#video-editing' },
-    { name: 'Reviews', href: '#reviews' },
-    { name: 'Contact', href: '#contact' },
+    { 
+      name: 'Case Studies', 
+      href: '/#case-studies',
+      subLinks: [
+        { name: 'Meta Ads', href: '/?filter=Meta%20Ads#case-studies' },
+        { name: 'Google Ads', href: '/?filter=Google%20Ads#case-studies' },
+        { name: 'TikTok Ads', href: '/?filter=TikTok%20Ads#case-studies' },
+        { name: 'Conversion Tracking', href: '/?filter=Conversion%20Tracking#case-studies' }
+      ]
+    },
+    { 
+      name: 'Services', 
+      href: '/#services',
+      subLinks: [
+        { name: 'Media Buying', href: '/?filter=Media%20Buying#services' },
+        { name: 'Video Editing', href: '/?filter=Video%20Editing#services' },
+        { name: 'Creative Strategy', href: '/?filter=Creative%20Strategy#services' },
+        { name: 'Analytics', href: '/?filter=Analytics#services' }
+      ]
+    },
+    { name: 'About', href: '/#about' },
+    { name: 'Contact', href: '/#contact' },
   ];
 
   const handleLinkClick = (e, href) => {
     e.preventDefault();
     setIsOpen(false);
-    setIsDropdownOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    
+    const url = new URL(href, window.location.origin);
+    const filter = url.searchParams.get('filter');
+    
+    if (filter) {
+      if (url.hash === '#services') window.dispatchEvent(new CustomEvent('setServiceFilter', { detail: filter }));
+      if (url.hash === '#portfolio') window.dispatchEvent(new CustomEvent('setPortfolioFilter', { detail: filter }));
+      if (url.hash === '#case-studies') window.dispatchEvent(new CustomEvent('setCaseStudyFilter', { detail: filter }));
+    } else {
+      if (url.hash === '#services') window.dispatchEvent(new CustomEvent('setServiceFilter', { detail: 'All' }));
+      if (url.hash === '#portfolio') window.dispatchEvent(new CustomEvent('setPortfolioFilter', { detail: 'All' }));
+      if (url.hash === '#case-studies') window.dispatchEvent(new CustomEvent('setCaseStudyFilter', { detail: 'All' }));
+    }
+
+    const cleanHref = url.pathname + url.hash;
+    navigate(cleanHref);
+
+    setTimeout(() => {
+      if (url.hash) {
+        const id = url.hash.replace('#', '');
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      } else if (url.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const scrollToContact = () => {
     setIsOpen(false);
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+    if (location.pathname !== '/') {
+      navigate('/#contact');
+    } else {
+      document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
-  /* ─── Text-only Creative Logo ─── */
   const LogoMark = () => (
-    <a href="#" className="group flex items-baseline gap-[3px] select-none" aria-label="Hafiz Media Buyer">
-      {/* Main wordmark */}
-      <span
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 900,
-          fontSize: '22px',
-          letterSpacing: '-0.02em',
-          lineHeight: 1,
-          background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 50%, #a78bfa 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          transition: 'filter 0.3s ease',
-        }}
-        className="group-hover:[filter:brightness(1.2)]"
-      >
+    <Link to="/" onClick={(e) => handleLinkClick(e, '/')} className="group flex items-baseline select-none relative" aria-label="Hafiz Portfolio">
+      <span className="font-display font-black text-3xl tracking-tighter text-[#000] uppercase group-hover:text-gray-700 transition-colors z-10">
         HAFIZ
       </span>
-      {/* Accent dot */}
-      <span
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 900,
-          fontSize: '26px',
-          lineHeight: 1,
-          color: '#3b82f6',
-          textShadow: '0 0 16px rgba(59,130,246,0.7)',
-          marginLeft: '-1px',
-        }}
-      >
-        ·
+      <span className="w-2 h-2 bg-brandAccent ml-1 mb-1 shadow-[0_0_10px_var(--color-brandAccentGlow)] z-10 group-hover:scale-150 transition-transform duration-300"></span>
+      {/* Brutalist offset shadow for logo on hover */}
+      <span className="font-display font-black text-3xl tracking-tighter text-brandAccent uppercase absolute top-0 left-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:translate-y-1 transition-all z-0 pointer-events-none">
+        HAFIZ
       </span>
-      {/* Suffix */}
-      <span
-        style={{
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 500,
-          fontSize: '10px',
-          letterSpacing: '0.22em',
-          color: '#64748b',
-          textTransform: 'uppercase',
-          alignSelf: 'center',
-          paddingBottom: '2px',
-          transition: 'color 0.3s ease',
-        }}
-        className="group-hover:[color:#93c5fd]"
-      >
-        media
-      </span>
-    </a>
+    </Link>
   );
 
   return (
@@ -107,168 +123,130 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#060913]/95 border-b border-white/5 backdrop-blur-md py-3'
-            : 'bg-transparent border-b border-transparent py-5'
+            ? 'bg-brandBg border-b border-black/10 py-4 shadow-sm'
+            : 'bg-transparent border-b border-transparent py-6'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
           <LogoMark />
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:block">
+          <nav className="hidden lg:block">
             <ul className="flex items-center space-x-8">
               {navLinks.map((link) => (
-                <li
-                  key={link.name}
-                  className="relative group py-2"
-                  onMouseEnter={() => link.dropdown && setIsDropdownOpen(true)}
-                  onMouseLeave={() => link.dropdown && setIsDropdownOpen(false)}
-                >
-                  {link.dropdown ? (
-                    <button
-                      onClick={(e) => handleLinkClick(e, link.href)}
-                      className="flex items-center space-x-1 text-sm font-medium text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer"
-                    >
-                      <span>{link.name}</span>
-                      <ChevronDown size={14} className={`transform transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                  ) : (
-                    <a
-                      href={link.href}
-                      onClick={(e) => handleLinkClick(e, link.href)}
-                      className="text-sm font-medium text-slate-400 hover:text-white transition-colors duration-200"
-                    >
-                      {link.name}
-                    </a>
-                  )}
-
-                  {link.dropdown && (
-                    <ul
-                      className={`absolute left-0 mt-2 bg-[#0b1121] border border-white/5 rounded-xl w-52 shadow-2xl py-2 transition-all duration-300 origin-top-left ${
-                        isDropdownOpen
-                          ? 'opacity-100 scale-100 translate-y-0 visible'
-                          : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'
-                      }`}
-                    >
-                      {link.dropdown.map((subItem) => (
-                        <li key={subItem.name}>
-                          <a
-                            href={subItem.href}
-                            onClick={(e) => handleLinkClick(e, subItem.href)}
-                            className="block px-4 py-2.5 text-xs text-slate-400 hover:text-white hover:bg-blue-500/10 transition-all duration-200"
-                          >
-                            {subItem.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                <li key={link.name} className="relative group py-2">
+                  <Link
+                    to={link.href}
+                    onClick={(e) => handleLinkClick(e, link.href)}
+                    className="text-xs tracking-widest uppercase font-bold text-brandMuted hover:text-brandAccent transition-colors duration-300 flex items-center gap-1"
+                  >
+                    {link.name}
+                    {link.subLinks && <ChevronDown size={14} className="ml-0.5 group-hover:rotate-180 transition-transform duration-300" />}
+                  </Link>
+                  
+                  {link.subLinks && (
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-black/10 shadow-[4px_4px_0px_var(--color-brandAccent)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                      <ul className="flex flex-col">
+                        {link.subLinks.map((subLink) => (
+                          <li key={subLink.name}>
+                            <Link
+                              to={subLink.href}
+                              onClick={(e) => handleLinkClick(e, subLink.href)}
+                              className="block px-4 py-3 text-xs tracking-widest uppercase font-bold text-brandMuted hover:text-brandAccent hover:bg-gray-50 transition-colors border-b border-black/5 last:border-b-0"
+                            >
+                              {subLink.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <button
               onClick={scrollToContact}
-              className="cursor-pointer px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-lg hover:from-blue-500 hover:to-violet-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+              className="cursor-pointer px-6 py-3 border border-brandAccent text-xs font-bold uppercase tracking-widest text-brandBg bg-brandAccent hover:bg-transparent hover:text-brandAccent hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_var(--color-brandAccent)] transition-all duration-300"
             >
-              Schedule a Meeting
+              Book Consultation
             </button>
           </div>
 
-          {/* Mobile Hamburger */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden relative z-[60] text-white hover:text-blue-400 transition-colors p-1 cursor-pointer"
+            className="lg:hidden relative z-[60] text-[#000] hover:text-brandAccent transition-colors p-1 cursor-pointer"
             aria-label="Toggle menu"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </header>
 
-      {/* Dark Backdrop */}
+      {/* Light Backdrop */}
       <div
         onClick={() => setIsOpen(false)}
-        className={`fixed inset-0 z-[45] bg-black/70 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-[45] bg-white/95 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       />
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-y-0 right-0 z-[50] w-full max-w-[320px] flex flex-col bg-[#060913] border-l border-white/8 shadow-[0_0_60px_rgba(0,0,0,0.9)] transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed inset-y-0 right-0 z-[50] w-full max-w-sm flex flex-col bg-brandBg border-l border-black/10 shadow-2xl transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:hidden ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Drawer Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-black/10">
           <LogoMark />
           <button
             onClick={() => setIsOpen(false)}
-            className="cursor-pointer text-slate-500 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+            className="cursor-pointer text-brandMuted hover:text-brandAccent transition-colors p-2 -mr-2"
             aria-label="Close menu"
           >
-            <X size={22} />
+            <X size={24} />
           </button>
         </div>
 
-        {/* Nav Links */}
-        <div className="flex-1 overflow-y-auto px-6 py-8">
+        <div className="flex-1 overflow-y-auto px-8 py-10">
           <ul className="space-y-6">
             {navLinks.map((link) => (
               <li key={link.name}>
-                {link.dropdown ? (
-                  <div className="space-y-3">
-                    <div className="text-xs font-bold text-blue-400 uppercase tracking-widest">
-                      {link.name}
-                    </div>
-                    <ul className="pl-4 border-l border-blue-500/20 space-y-3">
-                      {link.dropdown.map((subItem) => (
-                        <li key={subItem.name}>
-                          <a
-                            href={subItem.href}
-                            onClick={(e) => handleLinkClick(e, subItem.href)}
-                            className="block text-sm text-slate-400 hover:text-white transition-colors py-0.5"
-                          >
-                            {subItem.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <a
-                    href={link.href}
-                    onClick={(e) => handleLinkClick(e, link.href)}
-                    className="block text-base font-semibold text-white hover:text-blue-400 transition-colors"
-                  >
-                    {link.name}
-                  </a>
+                <Link
+                  to={link.href}
+                  onClick={(e) => handleLinkClick(e, link.href)}
+                  className="block text-3xl font-display font-black text-[#000] hover:text-brandAccent transition-colors uppercase tracking-tighter"
+                >
+                  {link.name}
+                </Link>
+                {link.subLinks && (
+                  <ul className="mt-4 ml-4 space-y-4 border-l-2 border-brandAccent/20 pl-4">
+                    {link.subLinks.map((subLink) => (
+                      <li key={subLink.name}>
+                        <Link
+                          to={subLink.href}
+                          onClick={(e) => handleLinkClick(e, subLink.href)}
+                          className="block text-xl font-display font-bold text-brandMuted hover:text-brandAccent transition-colors uppercase tracking-tight"
+                        >
+                          {subLink.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Drawer Footer CTA */}
-        <div className="px-6 py-6 border-t border-white/5 space-y-3">
+        <div className="px-8 py-8 border-t border-black/10 bg-gray-50/80">
           <button
             onClick={scrollToContact}
-            className="cursor-pointer block w-full text-center py-3.5 text-sm font-bold uppercase tracking-wider text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 transition-all duration-300 rounded-lg shadow-lg"
+            className="cursor-pointer block w-full text-center py-4 border border-brandAccent text-xs font-bold uppercase tracking-widest text-brandBg bg-brandAccent hover:bg-transparent hover:text-brandAccent hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_var(--color-brandAccent)] transition-all duration-300"
           >
-            Schedule a Meeting
+            Book Consultation
           </button>
-          <a
-            href={portfolioData.personalInfo.whatsappUrl || 'https://wa.me/'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full text-center py-3 text-sm font-semibold uppercase tracking-wider text-green-400 border border-green-500/30 hover:border-green-500/70 hover:bg-green-500/10 transition-all duration-300 rounded-lg cursor-pointer"
-          >
-            WhatsApp Chat
-          </a>
         </div>
       </div>
     </>

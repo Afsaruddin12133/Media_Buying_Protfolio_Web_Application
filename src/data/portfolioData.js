@@ -210,55 +210,64 @@ export const portfolioData = {
       id: 1,
       title: "High-Retention E-com Ad",
       description: "Dynamic hooks designed to capture attention within the first 3 seconds.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Direct Response"
     },
     {
       id: 2,
       title: "YouTube VLOG / Explainer",
       description: "Polished storytelling elements matching pacing to structural drop counts.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Brand Awareness"
     },
     {
       id: 3,
       title: "TikTok / Reels Creative",
       description: "Fast paced 9:16 vertical styling designed for peak social visual depth.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Short-Form"
     },
     {
       id: 4,
       title: "UGC Product Unboxing",
       description: "Authentic user generated content focused on highlighting immediate product benefits.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "UGC"
     },
     {
       id: 5,
       title: "High-Energy App Promo",
       description: "Visual text overlays, quick cuts, and kinetic typography for mobile app installs.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Direct Response"
     },
     {
       id: 6,
       title: "Explainer Motion Graphic",
       description: "Sleek vector transitions explaining complex SaaS workflows simply.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Motion Graphics"
     },
     {
       id: 7,
       title: "Direct Response Sales Pitch",
       description: "Problem-agitate-solve structure designed to push conversions for online courses.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Direct Response"
     },
     {
       id: 8,
       title: "Instagram Story Ad",
       description: "Thumb-stopping vertical layout designed around sound-off accessibility.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "Short-Form"
     },
     {
       id: 9,
       title: "Fashion Lookbook Reel",
       description: "Vibrant lifestyle cinematic cuts matching trending audio and sound cues.",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      category: "UGC"
     }
   ],
   reviews: [

@@ -30,7 +30,7 @@ export default function YoutubeEmbed({ url, title = 'Video' }) {
   const embedSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}`;
 
   return (
-    <div className="absolute inset-0 bg-[#060913]">
+    <div className="absolute inset-0 bg-gray-100">
       {/* Thumbnail + Play button — shown before activation */}
       {!isActivated && (
         <div
@@ -41,29 +41,20 @@ export default function YoutubeEmbed({ url, title = 'Video' }) {
           <img
             src={thumbnailUrl}
             alt={title}
-            className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
             onError={(e) => {
               // Fallback to default thumbnail if hqdefault fails
               e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
             }}
           />
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060913]/80 via-transparent to-[#060913]/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
           {/* Play button — perfectly centered */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative group-hover:scale-110 transition-transform duration-300">
-              {/* Pulsing rings */}
-              <div
-                className="absolute inset-0 rounded-full bg-blue-500/30 animate-ping"
-                style={{ animationDuration: '1.8s' }}
-              />
-              <div
-                className="absolute -inset-3 rounded-full bg-blue-500/10 animate-ping"
-                style={{ animationDuration: '2.4s', animationDelay: '0.3s' }}
-              />
               {/* Button */}
-              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.8)]">
+              <div className="relative w-16 h-16 bg-brandAccent flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
                 <Play size={26} className="text-white ml-1" fill="white" />
               </div>
             </div>
@@ -71,7 +62,7 @@ export default function YoutubeEmbed({ url, title = 'Video' }) {
 
           {/* Title label */}
           <div className="absolute bottom-3 left-3 right-3">
-            <p className="text-xs text-white/60 font-medium tracking-wide truncate">{title}</p>
+            <p className="text-xs text-white font-medium tracking-wide truncate drop-shadow-md">{title}</p>
           </div>
         </div>
       )}
@@ -81,30 +72,9 @@ export default function YoutubeEmbed({ url, title = 'Video' }) {
         <>
           {/* Branded loading state while iframe boots */}
           {!isLoaded && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#060913] gap-4">
-              {/* Gradient arc spinner */}
-              <svg
-                className="animate-spin w-12 h-12"
-                viewBox="0 0 50 50"
-                style={{ animationDuration: '1s' }}
-              >
-                <circle cx="25" cy="25" r="20" fill="none" stroke="#1e293b" strokeWidth="3" />
-                <circle
-                  cx="25" cy="25" r="20"
-                  fill="none"
-                  stroke="url(#embedGrad)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray="50 200"
-                />
-                <defs>
-                  <linearGradient id="embedGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#8b5cf6" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span className="text-[10px] text-slate-500 tracking-[0.2em] uppercase">Loading Video</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 gap-4">
+              <div className="w-12 h-12 border-4 border-brandAccent border-t-transparent animate-spin"></div>
+              <span className="text-[10px] text-[#000] font-bold tracking-[0.2em] uppercase">Loading Video</span>
             </div>
           )}
 

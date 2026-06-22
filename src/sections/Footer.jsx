@@ -1,74 +1,125 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { portfolioData } from '../data/portfolioData';
 
 export default function Footer() {
-  const { whatsappUrl } = portfolioData.personalInfo;
+  const { whatsappUrl, email } = portfolioData.personalInfo;
 
-  const socialLinks = [
-    { name: 'LinkedIn', href: '#', color: 'hover:text-blue-400' },
-    { name: 'Fiverr', href: '#', color: 'hover:text-green-400' },
-    { name: 'Upwork', href: '#', color: 'hover:text-emerald-400' },
-    { name: 'WhatsApp', href: whatsappUrl, color: 'hover:text-green-400' },
+  const quickLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/#about' },
+    { name: 'Portfolio', href: '/#portfolio' },
+    { name: 'Case Studies', href: '/#case-studies' },
   ];
 
+  const servicesLinks = [
+    { name: 'Media Buying', href: '/#services' },
+    { name: 'Video Editing', href: '/#video-portfolio' },
+    { name: 'Creative Strategy', href: '/#services' },
+    { name: 'Analytics', href: '/#services' },
+  ];
+
+  const socialLinks = [
+    { name: 'LinkedIn', href: '#', color: 'hover:text-brandAccent' },
+    { name: 'Fiverr', href: '#', color: 'hover:text-brandAccent' },
+    { name: 'Upwork', href: '#', color: 'hover:text-brandAccent' },
+    { name: 'WhatsApp', href: whatsappUrl, color: 'hover:text-brandAccent' },
+  ];
+
+  const LogoMark = () => (
+    <Link to="/" className="group flex items-baseline select-none relative w-fit mb-6" aria-label="Hafiz Portfolio">
+      <span className="font-display font-black text-4xl tracking-tighter text-[#000] uppercase group-hover:text-gray-800 transition-colors z-10">
+        HAFIZ
+      </span>
+      <span className="w-3 h-3 bg-brandAccent ml-1 mb-1 shadow-[0_0_10px_var(--color-brandAccentGlow)] z-10 group-hover:scale-150 transition-transform duration-300"></span>
+      {/* Brutalist offset shadow for logo on hover */}
+      <span className="font-display font-black text-4xl tracking-tighter text-brandAccent uppercase absolute top-0 left-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:translate-y-1 transition-all z-0 pointer-events-none">
+        HAFIZ
+      </span>
+    </Link>
+  );
+
   return (
-    <footer className="relative border-t border-white/5 bg-[#050810] overflow-hidden">
-      {/* Top gradient line */}
-      <div className="section-divider" />
+    <footer className="relative bg-brandBg border-t border-black/10 pt-12 pb-6 overflow-hidden">
+      
+      {/* Stark Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:48px_48px] pointer-events-none" />
 
-      {/* Subtle glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-8">
+          
+          {/* Brand Section */}
+          <div className="lg:col-span-4 space-y-4">
+            <LogoMark />
+            <p className="text-xs text-brandMuted leading-relaxed max-w-sm font-medium">
+              Scaling e-commerce and lead-gen brands through data-driven strategies and high-converting video creatives.
+            </p>
+          </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-14 relative z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          {/* Quick Links */}
+          <div className="lg:col-span-2 lg:col-start-6">
+            <h4 className="text-[10px] font-bold tracking-widest text-[#000] uppercase mb-4">Quick Links</h4>
+            <ul className="space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-xs text-brandMuted font-bold uppercase tracking-wider hover:text-brandAccent transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          {/* Logo */}
-          <div className="flex flex-col items-center md:items-start gap-1">
-            <div className="flex items-center gap-1.5">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-violet-700 flex items-center justify-center">
-                <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-                  <path d="M4 3V17M16 3V17M4 10H16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+          {/* Services Links */}
+          <div className="lg:col-span-2">
+            <h4 className="text-[10px] font-bold tracking-widest text-[#000] uppercase mb-4">Services</h4>
+            <ul className="space-y-2">
+              {servicesLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-xs text-brandMuted font-bold uppercase tracking-wider hover:text-brandAccent transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Details */}
+          <div className="lg:col-span-3 lg:col-start-10 space-y-4">
+            <h4 className="text-[10px] font-bold tracking-widest text-[#000] uppercase mb-4">Contact</h4>
+            <div className="space-y-2 text-xs text-brandMuted font-bold">
+              <p className="uppercase tracking-widest">London, UK</p>
+              <p>
+                <a href={`mailto:${email || 'hello@expertagency.com'}`} className="hover:text-brandAccent transition-colors uppercase tracking-widest">
+                  {email || 'hello@expertagency.com'}
+                </a>
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[9px] font-black uppercase tracking-widest text-[#000] border border-black/10 px-2 py-1 bg-white ${link.color} transition-colors`}
+                  >
+                    {link.name}
+                  </a>
+                ))}
               </div>
-              <span className="text-sm font-black tracking-[0.18em] text-white font-display uppercase">HAFIZ</span>
             </div>
-            <p className="text-[10px] text-slate-600 uppercase tracking-[0.25em]">Performance Marketer</p>
           </div>
-
-          {/* Social links */}
-          <div className="flex items-center gap-8">
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`text-xs font-semibold tracking-wider text-slate-500 ${link.color} transition-colors duration-200`}
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:from-blue-500 hover:to-violet-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
-          >
-            Work With Me
-          </a>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-[11px] text-slate-600 uppercase tracking-widest">
+        {/* Bottom Bar */}
+        <div className="pt-6 border-t border-black/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[10px] text-brandMuted uppercase tracking-widest font-bold">
             © {new Date().getFullYear()} HAFIZ. All Rights Reserved.
           </p>
-          <p className="text-[11px] text-slate-700 tracking-wide">
-            Media Buying · Performance Marketing · Conversion Tracking
-          </p>
+          <div className="flex gap-6 text-[10px] text-brandMuted font-bold uppercase tracking-widest">
+            <Link to="#" className="hover:text-brandAccent transition-colors">Privacy Policy</Link>
+            <Link to="#" className="hover:text-brandAccent transition-colors">Terms of Service</Link>
+          </div>
         </div>
       </div>
     </footer>
