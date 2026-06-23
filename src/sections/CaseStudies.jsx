@@ -5,10 +5,27 @@ import CaseStudyModal from '../components/CaseStudyModal';
 import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function CaseStudies() {
-  const caseStudies = portfolioData.caseStudies;
+  const [caseStudies, setCaseStudies] = useState(portfolioData.caseStudies);
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [filter, setFilter] = useState("All");
   const ref = useScrollReveal();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/case-studies');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setCaseStudies(data);
+          }
+        }
+      } catch (err) {
+        console.log("Using static case studies data as backend is unreachable.");
+      }
+    };
+    fetchData();
+  }, []);
 
   const categories = ["All", ...new Set(caseStudies.map(item => item.category || item.industry))];
 

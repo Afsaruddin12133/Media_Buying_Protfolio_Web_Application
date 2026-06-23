@@ -7,6 +7,8 @@ import WhatsAppButton from './components/WhatsAppButton';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import Home from './pages/Home';
 import PortfolioDetail from './pages/PortfolioDetail';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +60,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </main>
 

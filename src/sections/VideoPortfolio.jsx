@@ -6,9 +6,26 @@ import { portfolioData } from '../data/portfolioData';
 import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function VideoPortfolio() {
-  const portfolioItems = portfolioData.videoPortfolio;
+  const [portfolioItems, setPortfolioItems] = useState(portfolioData.videoPortfolio);
   const [filter, setFilter] = useState("All");
   const ref = useScrollReveal();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/portfolio');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setPortfolioItems(data);
+          }
+        }
+      } catch (err) {
+        console.log("Using static portfolio data as backend is unreachable.");
+      }
+    };
+    fetchData();
+  }, []);
 
   const categories = ["All", ...new Set(portfolioItems.map(item => item.category || "Video Ad"))];
 
