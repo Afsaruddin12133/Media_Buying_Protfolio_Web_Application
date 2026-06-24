@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        navigate('/dashboard');
-      } else {
-        setError(data.msg || 'Login failed');
-      }
+      // Use Firebase Auth
+      await signInWithEmailAndPassword(auth, email, password);
+      // Firebase automatically manages the user session, so we don't need a token in localStorage
+      // But we can store a flag if we want, or just rely on Firebase's onAuthStateChanged in Dashboard
+      navigate('/dashboard');
     } catch (err) {
-      setError('Server connection failed');
+      console.error(err);
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,9 +63,10 @@ export default function Login() {
           </div>
           <button 
             type="submit"
-            className="w-full mt-4 py-3 bg-brandAccent text-white font-bold uppercase tracking-widest text-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_#000000] transition-all border border-brandAccent hover:bg-transparent hover:text-brandAccent"
+            disabled={loading}
+            className="w-full mt-4 py-3 bg-brandAccent text-white font-bold uppercase tracking-widest text-sm hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_#000000] transition-all border border-brandAccent hover:bg-transparent hover:text-brandAccent disabled:opacity-50"
           >
-            Sign In
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
       </div>

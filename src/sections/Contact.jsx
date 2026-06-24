@@ -22,14 +22,6 @@ const BULLETS = [
 export default function Contact() {
   const ref = useScrollReveal();
 
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    document.body.appendChild(script);
-    return () => { if (document.body.contains(script)) document.body.removeChild(script); };
-  }, []);
-
   return (
     <section id="contact" ref={ref} className="py-32 px-6 md:px-12 relative overflow-hidden bg-brandBg border-b border-black/10">
       <div className="max-w-7xl mx-auto relative z-10">
@@ -76,14 +68,18 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Right Column: Calendly Widget */}
+          {/* Right Column: Calendly Iframe */}
           <div className="reveal lg:h-full">
             <div className="border border-black/10 bg-white p-2 md:p-4 shadow-[4px_4px_0px_var(--color-brandAccent)] lg:shadow-[8px_8px_0px_var(--color-brandAccent)] lg:h-full">
-              <div
-                className="calendly-inline-widget w-full h-[600px] lg:h-[700px]"
-                data-url="https://calendly.com/hafizur-personal01/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=0a0a0a&primary_color=2563eb"
-                style={{ minWidth: '320px' }}
-              />
+              <iframe
+                src="https://calendly.com/hafizur-personal01/30min?embed_domain=true&embed_type=Inline&hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=0a0a0a&primary_color=2563eb"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                title="Schedule a Call"
+                className="w-full h-[600px] lg:h-[700px]"
+                loading="eager"
+              ></iframe>
             </div>
           </div>
 

@@ -31,6 +31,9 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // Hide global elements like Navbar and Footer on admin routes
+  const hideNavigation = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/login');
+
   return (
     <>
       {/* Creative Page Loader */}
@@ -53,10 +56,10 @@ function App() {
         <div className="fixed bottom-[-10vw] right-[-10vw] w-[40vw] h-[40vw] bg-black/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
         {/* Sticky navigation */}
-        <Navbar />
+        {!hideNavigation && <Navbar />}
 
         {/* Routes */}
-        <main className="min-h-screen pt-20">
+        <main className={`min-h-screen ${!hideNavigation ? 'pt-20' : ''}`}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
@@ -66,11 +69,15 @@ function App() {
         </main>
 
         {/* Bottom quick links and copyrights */}
-        <Footer />
+        {!hideNavigation && <Footer />}
 
         {/* Persistent floating buttons */}
-        <ScrollToTopButton />
-        <WhatsAppButton />
+        {!hideNavigation && (
+          <>
+            <ScrollToTopButton />
+            <WhatsAppButton />
+          </>
+        )}
       </div>
     </>
   );

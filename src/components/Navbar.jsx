@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [portfolioCategories, setPortfolioCategories] = useState([]);
+  const [caseStudyCategories, setCaseStudyCategories] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,28 +33,48 @@ export default function Navbar() {
     }
   }, [location]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const pSnap = await getDocs(collection(db, 'videoPortfolio'));
+        const pCats = new Set();
+        pSnap.forEach(doc => {
+          const cat = doc.data().category;
+          if (cat) pCats.add(cat);
+        });
+        setPortfolioCategories(Array.from(pCats));
+
+        const cSnap = await getDocs(collection(db, 'caseStudies'));
+        const cCats = new Set();
+        cSnap.forEach(doc => {
+          const cat = doc.data().category || doc.data().industry;
+          if (cat) cCats.add(cat);
+        });
+        setCaseStudyCategories(Array.from(cCats));
+      } catch (err) {
+        console.error("Error fetching categories for navbar:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const navLinks = [
     { name: 'Home', href: '/' },
     { 
       name: 'Portfolio', 
       href: '/#portfolio',
-      subLinks: [
-        { name: 'Direct Response', href: '/?filter=Direct%20Response#portfolio' },
-        { name: 'Brand Awareness', href: '/?filter=Brand%20Awareness#portfolio' },
-        { name: 'Short-Form', href: '/?filter=Short-Form#portfolio' },
-        { name: 'UGC', href: '/?filter=UGC#portfolio' },
-        { name: 'Motion Graphics', href: '/?filter=Motion%20Graphics#portfolio' }
-      ]
+      subLinks: portfolioCategories.length > 0 ? portfolioCategories.map(cat => ({
+        name: cat,
+        href: `/?filter=${encodeURIComponent(cat)}#portfolio`
+      })) : undefined
     },
     { 
       name: 'Case Studies', 
       href: '/#case-studies',
-      subLinks: [
-        { name: 'Meta Ads', href: '/?filter=Meta%20Ads#case-studies' },
-        { name: 'Google Ads', href: '/?filter=Google%20Ads#case-studies' },
-        { name: 'TikTok Ads', href: '/?filter=TikTok%20Ads#case-studies' },
-        { name: 'Conversion Tracking', href: '/?filter=Conversion%20Tracking#case-studies' }
-      ]
+      subLinks: caseStudyCategories.length > 0 ? caseStudyCategories.map(cat => ({
+        name: cat,
+        href: `/?filter=${encodeURIComponent(cat)}#case-studies`
+      })) : undefined
     },
     { 
       name: 'Services', 

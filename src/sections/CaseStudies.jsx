@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { portfolioData } from '../data/portfolioData';
 import CaseStudyModal from '../components/CaseStudyModal';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { db } from '../firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 export default function CaseStudies() {
-  const [caseStudies, setCaseStudies] = useState(portfolioData.caseStudies);
+  const [caseStudies, setCaseStudies] = useState([]);
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [filter, setFilter] = useState("All");
   const ref = useScrollReveal();
@@ -13,15 +14,18 @@ export default function CaseStudies() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/case-studies');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.length > 0) {
-            setCaseStudies(data);
-          }
+        const q = query(collection(db, 'caseStudies'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const data = [];
+        querySnapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...doc.data() });
+        });
+        
+        if (data.length > 0) {
+          setCaseStudies(data);
         }
       } catch (err) {
-        console.log("Using static case studies data as backend is unreachable.");
+        console.error("Using static case studies data as Firestore fetch failed:", err);
       }
     };
     fetchData();
