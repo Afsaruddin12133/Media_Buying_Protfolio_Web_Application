@@ -10,7 +10,7 @@ export const portfolioData = {
     heroVideoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     ctaPrimary: { text: "Contact Me", link: "#contact" },
     ctaSecondary: { text: "Schedule a Meeting", link: "#contact" },
-    whatsappUrl: "https://wa.me/8801234567890", // TODO: Replace with your actual WhatsApp number
+    whatsappUrl: "https://wa.me/8801984666839",
   },
   stats: [
     { value: "3+", label: "Years Experience" },
@@ -65,6 +65,18 @@ export const portfolioData = {
         "Google Tag Manager Server-Side",
         "GA4 multi-touch attribution setup",
         "Cookie life extensions & proxy systems"
+      ]
+    },
+    {
+      id: "video-editing",
+      title: "Video Editing Services",
+      description: "End-to-end video editing solutions providing Vlog editing, POV style content, Dating creatives, and UGC-style video editing services tailored for high-retention and direct response scaling.",
+      icon: "Video",
+      bullets: [
+        "Vlog & POV Editing",
+        "Dating App Creatives",
+        "UGC Video Editing",
+        "End-to-End Delivery Solutions"
       ]
     }
   ],

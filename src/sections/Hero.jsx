@@ -1,19 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { portfolioData } from '../data/portfolioData';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const TITLES = [
-  "Architect.",
+  "Video Editor.",
   "Media -Buyer.",
   "Strategist.",
 ];
+
+/**
+ * Converts a raw YouTube URL (watch?v=, youtu.be, or already an embed URL)
+ * into a valid embed src with autoplay, loop, and no mute (so sound works once user interacts).
+ */
+function buildYoutubeEmbedSrc(url, isMuted) {
+  if (!url) return '';
+  let videoId = '';
+
+  // Already an embed URL — extract the video ID
+  const embedMatch = url.match(/youtube\.com\/embed\/([^?&]+)/);
+  if (embedMatch) {
+    videoId = embedMatch[1];
+  }
+
+  // Standard watch URL
+  const watchMatch = url.match(/[?&]v=([^&]+)/);
+  if (watchMatch) {
+    videoId = watchMatch[1];
+  }
+
+  // Short URL youtu.be/VIDEO_ID
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
+  if (shortMatch) {
+    videoId = shortMatch[1];
+  }
+
+  if (!videoId) return url; // fallback: return as-is (e.g. Vimeo)
+
+  const muteParam = isMuted ? '1' : '0';
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteParam}&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&disablekb=1&playsinline=1`;
+}
+
+const FALLBACK_VIDEO_URL = 'https://www.youtube.com/embed/rBe3J2aGgGk?autoplay=1&mute=1&loop=1&playlist=rBe3J2aGgGk&controls=0&showinfo=0&rel=0&modestbranding=1&disablekb=1&playsinline=1';
 
 export default function Hero() {
   const { bio, whatsappUrl } = portfolioData.personalInfo;
   const allStats = portfolioData.stats;
 
   const [titleIndex, setTitleIndex] = useState(0);
+  const [heroVideoUrl, setHeroVideoUrl] = useState('');
+  const [isMuted, setIsMuted] = useState(true);
+  const iframeRef = useRef(null);
 
+  // Rotate title
   useEffect(() => {
     const interval = setInterval(() => {
       setTitleIndex((prev) => (prev + 1) % TITLES.length);
@@ -21,9 +61,31 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, []);
 
-  // Using the exact YouTube video requested, configured to auto-play, loop, and mute
-  // controls=0 and disablekb=1 remove UI. pointer-events-none ensures no hover overlays.
-  const ytSrc = "https://www.youtube.com/embed/rBe3J2aGgGk?autoplay=1&mute=1&loop=1&playlist=rBe3J2aGgGk&controls=0&showinfo=0&rel=0&modestbranding=1&disablekb=1&playsinline=1";
+  // Fetch hero video URL from Firestore
+  useEffect(() => {
+    const fetchVideoUrl = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'heroVideo'));
+        if (snap.exists() && snap.data().url) {
+          setHeroVideoUrl(snap.data().url);
+        }
+      } catch (err) {
+        console.error('Failed to fetch hero video URL:', err);
+      }
+    };
+    fetchVideoUrl();
+  }, []);
+
+  // Rebuild the embed src whenever the URL or muted state changes.
+  // When unmuting, we reload the iframe with mute=0. The browser autoplay
+  // policy requires a prior user interaction — the unmute button provides that.
+  const embedSrc = heroVideoUrl
+    ? buildYoutubeEmbedSrc(heroVideoUrl, isMuted)
+    : FALLBACK_VIDEO_URL;
+
+  const handleUnmute = () => {
+    setIsMuted(false);
+  };
 
   return (
     <section className="relative flex flex-col justify-start overflow-hidden bg-brandBg pt-28 md:pt-36 lg:pt-40 pb-2">
@@ -95,15 +157,46 @@ export default function Hero() {
             {/* Video Container */}
             <div className="relative aspect-video bg-black border-[3px] border-black shadow-[4px_4px_0px_#000000] group z-10 overflow-hidden">
               <iframe
+                ref={iframeRef}
+                key={embedSrc}
                 width="100%"
                 height="100%"
-                src={ytSrc}
+                src={embedSrc}
                 title="YouTube video player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 className="absolute inset-0 w-[110%] h-[110%] -left-[5%] -top-[5%] object-cover z-10 pointer-events-none scale-[1.02]"
               ></iframe>
+
+              {/* Unmute Button Overlay */}
+              {isMuted && (
+                <button
+                  onClick={handleUnmute}
+                  title="Unmute video"
+                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 bg-black/70 hover:bg-brandAccent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-full backdrop-blur-sm transition-all duration-200 shadow-lg"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905H6.44l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM17.78 9.22a.75.75 0 1 0-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 1 0 1.06-1.06L20.56 12l1.72-1.72a.75.75 0 1 0-1.06-1.06l-1.72 1.72-1.72-1.72Z" />
+                  </svg>
+                  Tap to Unmute
+                </button>
+              )}
+
+              {/* Mute Button (visible when unmuted) */}
+              {!isMuted && (
+                <button
+                  onClick={() => setIsMuted(true)}
+                  title="Mute video"
+                  className="absolute bottom-3 right-3 z-30 flex items-center gap-1.5 bg-black/50 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-full backdrop-blur-sm transition-all duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905H6.44l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z" />
+                    <path d="M15.932 7.757a.75.75 0 0 1 1.061 0 6 6 0 0 1 0 8.486.75.75 0 0 1-1.06-1.061 4.5 4.5 0 0 0 0-6.364.75.75 0 0 1 0-1.06Z" />
+                  </svg>
+                  Mute
+                </button>
+              )}
             </div>
 
             {/* Floating Animated Stats */}
@@ -131,12 +224,12 @@ export default function Hero() {
                   <motion.div
                     animate={{ y: [0, -12, 0] }}
                     transition={{ repeat: Infinity, duration: 4 + (i * 0.5), ease: "easeInOut", delay: i * 0.3 }}
-                    className="bg-white/80 backdrop-blur-xl border border-white/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center whitespace-nowrap cursor-pointer group"
+                    className="bg-white/80 backdrop-blur-xl border border-white/60 px-2 py-1 md:px-3 md:py-2 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center whitespace-nowrap cursor-pointer group"
                   >
-                    <div className="text-xl md:text-3xl font-black font-display text-[#000] tracking-tighter group-hover:text-brandAccent transition-colors">
+                    <div className="text-lg md:text-xl font-black font-display text-[#000] tracking-tighter group-hover:text-brandAccent transition-colors">
                       {stat.value}
                     </div>
-                    <div className="text-[8px] md:text-[10px] text-brandMuted uppercase tracking-[0.2em] font-bold mt-0.5 md:mt-1 group-hover:text-[#000] transition-colors">
+                    <div className="text-[6px] md:text-[8px] text-brandMuted uppercase tracking-[0.2em] font-bold mt-0.5 group-hover:text-[#000] transition-colors">
                       {stat.label}
                     </div>
                   </motion.div>

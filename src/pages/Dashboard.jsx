@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, orderBy, query, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, orderBy, query, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 
 export default function Dashboard() {
@@ -18,6 +18,10 @@ export default function Dashboard() {
   const [caseStudyItems, setCaseStudyItems] = useState([]);
   const [testimonialItems, setTestimonialItems] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
+
+  // Hero Video Settings State
+  const [heroVideoInput, setHeroVideoInput] = useState('');
+  const [heroVideoSaved, setHeroVideoSaved] = useState('');
 
   // Editing State
   const [editingItemId, setEditingItemId] = useState(null);
@@ -77,6 +81,38 @@ export default function Dashboard() {
       fetchItems();
     }
   }, [activeTab]);
+
+  // Fetch current hero video URL from Firestore on mount
+  useEffect(() => {
+    const fetchHeroVideo = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'settings', 'heroVideo'));
+        if (snap.exists()) {
+          const url = snap.data().url || '';
+          setHeroVideoSaved(url);
+          setHeroVideoInput(url);
+        }
+      } catch (err) {
+        console.error('Failed to fetch hero video setting:', err);
+      }
+    };
+    fetchHeroVideo();
+  }, []);
+
+  const saveHeroVideoUrl = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMsg('');
+    try {
+      await setDoc(doc(db, 'settings', 'heroVideo'), { url: heroVideoInput }, { merge: true });
+      setHeroVideoSaved(heroVideoInput);
+      setMsg('Hero video URL updated successfully! Refresh the homepage to see the change.');
+    } catch (err) {
+      console.error(err);
+      setMsg('Error saving hero video URL: ' + err.message);
+    }
+    setLoading(false);
+  };
 
   const handleDelete = async (collectionName, id) => {
     if (!window.confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
@@ -364,6 +400,12 @@ export default function Dashboard() {
                 >
                   + Add Testimonial
                 </button>
+                <button 
+                  onClick={() => handleTabChange('heroVideo')}
+                  className={`text-left text-xs font-bold uppercase tracking-widest px-5 py-4 border transition-all ${activeTab === 'heroVideo' ? 'bg-brandAccent text-white border-brandAccent shadow-[4px_4px_0px_#000000]' : 'bg-brandBg text-black border-black/10 hover:border-brandAccent'}`}
+                >
+                  🎬 Hero Video URL
+                </button>
               </div>
             </div>
 
@@ -401,6 +443,39 @@ export default function Dashboard() {
         {msg && (
           <div className={`p-4 mb-8 border font-bold uppercase tracking-widest text-xs ${msg.includes('Error') || msg.includes('Failed') ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
             {msg}
+          </div>
+        )}
+
+        {/* HERO VIDEO SETTINGS FORM */}
+        {activeTab === 'heroVideo' && (
+          <div className="bg-white p-8 border border-black/10 shadow-[8px_8px_0px_var(--color-brandAccent)] relative">
+            <h2 className="text-2xl font-display font-black mb-2 uppercase">Hero Video URL</h2>
+            <p className="text-sm text-brandMuted mb-6 font-medium">Paste any YouTube or Vimeo URL below. It will instantly appear on the homepage hero section for all visitors.</p>
+            <form onSubmit={saveHeroVideoUrl} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-brandMuted mb-2">Video URL (YouTube / Vimeo)</label>
+                <input
+                  type="url"
+                  required
+                  value={heroVideoInput}
+                  onChange={e => setHeroVideoInput(e.target.value)}
+                  placeholder="e.g. https://www.youtube.com/watch?v=xxxxxx"
+                  className="w-full p-3 border border-black/20 focus:border-brandAccent focus:outline-none text-sm"
+                />
+              </div>
+              {heroVideoSaved && (
+                <div className="p-3 bg-brandBg border border-black/10 text-[10px] text-brandMuted font-mono break-all">
+                  <span className="font-bold uppercase text-black mr-2">Current:</span>{heroVideoSaved}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-8 py-4 bg-brandAccent text-white text-xs font-bold uppercase tracking-widest hover:bg-black transition-colors shadow-[4px_4px_0px_#000000] disabled:opacity-50"
+              >
+                {loading ? 'Saving...' : 'Save & Publish Video'}
+              </button>
+            </form>
           </div>
         )}
 

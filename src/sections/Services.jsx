@@ -23,6 +23,14 @@ const SERVICES_DATA = [
     bullets: ["PMax structure optimization", "High-intent search clusters", "Negative keyword curation"]
   },
   {
+    id: "tiktok-ads-scaling",
+    category: "Media Buying",
+    title: "TikTok Ads Scaling",
+    description: "Driving conversions through aggressive algorithmic targeting and Spark Ads optimization on TikTok.",
+    icon: Music,
+    bullets: ["Spark Ads optimization", "Direct-to-LP scaling", "Micro-demographic testing"]
+  },
+  {
     id: "tiktok-reels",
     category: "Video Editing",
     title: "TikTok & Reels Editing",
@@ -60,7 +68,15 @@ const SERVICES_DATA = [
     title: "Performance Tracking",
     description: "Custom dashboard creation to monitor ROAS, LTV, and blended CPA in real-time.",
     icon: PieChart,
-    bullets: ["Looker Studio dashboards", "Blended ROAS tracking", "Cohort analysis setup"]
+    bullets: ["Looker Studio dashboards", "Blended ROAS tracking", "Analytical Dashboards"]
+  },
+  {
+    id: "vlog-editing",
+    category: "Video Editing",
+    title: "Vlog & POV Editing",
+    description: "Specialized in vlog editing, POV styles, dating app creatives, and engaging UGC content.",
+    icon: Video,
+    bullets: ["Vlog & POV style edits", "Dating app creatives", "UGC video content"]
   }
 ];
 
