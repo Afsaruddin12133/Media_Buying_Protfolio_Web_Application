@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play } from 'lucide-react';
-import useScrollReveal from '../hooks/useScrollReveal';
-import { db } from '../firebase';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import PortfolioModal from '../components/PortfolioModal';
+import { getYouTubeId } from '../components/YoutubeEmbed';
+import { db } from '../firebase';
+import useScrollReveal from '../hooks/useScrollReveal';
+
+const INITIAL_LIMIT = 6;
 
 export default function VideoPortfolio() {
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [filter, setFilter] = useState("All");
+  const [showAll, setShowAll] = useState(false);
   const [selectedPortfolioItem, setSelectedPortfolioItem] = useState(null);
   const ref = useScrollReveal();
-
-  const getYouTubeId = (url) => {
-    if (!url) return null;
-    const embedMatch = url.match(/youtube\.com\/embed\/([^?&/]+)/);
-    if (embedMatch) return embedMatch[1];
-    const watchMatch = url.match(/[?&]v=([^&]+)/);
-    if (watchMatch) return watchMatch[1];
-    const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
-    if (shortMatch) return shortMatch[1];
-    return null;
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,9 +49,17 @@ export default function VideoPortfolio() {
     window.addEventListener('setPortfolioFilter', handleFilter);
     return () => window.removeEventListener('setPortfolioFilter', handleFilter);
   }, [categories]);
+
+  // Reset expansion when category filter changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [filter]);
+
   const filteredItems = filter === "All"
     ? portfolioItems
     : portfolioItems.filter(item => (item.category || "Video Ad") === filter);
+
+  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, INITIAL_LIMIT);
 
   return (
     <section id="portfolio" ref={ref} className="py-32 px-6 md:px-12 relative overflow-hidden bg-brandBg border-b border-black/10">
@@ -98,10 +99,10 @@ export default function VideoPortfolio() {
 
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => {
+            {displayedItems.map((item) => {
               const isImage = item.mediaType === 'image';
               const yId = (!isImage && !item.thumbnail && item.videoUrl) ? getYouTubeId(item.videoUrl) : null;
-              const displayImg = item.thumbnail || (yId ? `https://img.youtube.com/vi/${yId}/maxresdefault.jpg` : `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80&auto=format&fit=crop&sig=${item.id}`);
+              const displayImg = item.thumbnail || (yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : `https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80&auto=format&fit=crop&sig=${item.id}`);
 
               return (
               <motion.div
@@ -120,8 +121,8 @@ export default function VideoPortfolio() {
                     alt={item.title}
                     loading="lazy"
                     onError={(e) => {
-                      if (yId && e.currentTarget.src.includes('maxresdefault')) {
-                        e.currentTarget.src = `https://img.youtube.com/vi/${yId}/hqdefault.jpg`;
+                      if (yId && e.currentTarget.src.includes('hqdefault')) {
+                        e.currentTarget.src = `https://img.youtube.com/vi/${yId}/0.jpg`;
                       }
                     }}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100 grayscale group-hover:grayscale-0"
@@ -161,6 +162,26 @@ export default function VideoPortfolio() {
             )})}
           </AnimatePresence>
         </motion.div>
+
+        {/* Show More / Show Less Button */}
+        {filteredItems.length > INITIAL_LIMIT && (
+          <div className="flex justify-end mt-12">
+            <button
+              onClick={() => {
+                if (showAll) {
+                  setShowAll(false);
+                  document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setShowAll(true);
+                }
+              }}
+              className="flex items-center gap-3 px-10 py-5 bg-brandAccent text-white hover:bg-black text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_var(--color-brandAccent)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-black"
+            >
+              <span>{showAll ? "Show Less" : `Show More Works (+${filteredItems.length - INITIAL_LIMIT})`}</span>
+              <ChevronDown size={18} className={`transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+        )}
       </div>
 
       <PortfolioModal 

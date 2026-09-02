@@ -1,7 +1,6 @@
-import React from 'react';
-import useScrollReveal from '../hooks/useScrollReveal';
-import { Target, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Shield, Target, TrendingUp, Zap } from 'lucide-react';
 import myImage from '../assets/myimage.jpeg';
+import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function About() {
   const ref = useScrollReveal();
@@ -14,8 +13,8 @@ export default function About() {
   ];
 
   const stats = [
-    { value: "$5M+", label: "Ad Spend Managed" },
-    { value: "3.5x", label: "Average ROAS" },
+    { value: "$500K", label: "Ad Spend Managed" },
+    { value: "5x", label: "Average ROAS" },
     { value: "50+", label: "Brands Scaled" },
     { value: "24/7", label: "Performance Tracking" }
   ];

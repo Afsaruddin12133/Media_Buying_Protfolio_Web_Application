@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Play, BarChart2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { api } from '../api/mockDb';
-import YoutubeEmbed from '../components/YoutubeEmbed';
+import YoutubeEmbed, { getYouTubeId } from '../components/YoutubeEmbed';
 
 export default function PortfolioDetail() {
   const { slug } = useParams();
@@ -88,7 +88,7 @@ export default function PortfolioDetail() {
             {/* Media Player */}
             {project.videoUrl && (
               <div className="border border-black/10 shadow-[8px_8px_0px_var(--color-brandAccent)] bg-white overflow-hidden">
-                {project.videoUrl.includes('youtube.com') || project.videoUrl.includes('youtu.be') ? (
+                {getYouTubeId(project.videoUrl) ? (
                   <div className="relative pb-[56.25%] h-0">
                     <YoutubeEmbed url={project.videoUrl} title={project.title} />
                   </div>

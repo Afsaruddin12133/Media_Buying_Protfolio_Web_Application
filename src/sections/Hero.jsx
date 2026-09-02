@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { doc, getDoc } from 'firebase/firestore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { getYouTubeId } from '../components/YoutubeEmbed';
 import { portfolioData } from '../data/portfolioData';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
 
 const TITLES = [
   "Video Editor.",
@@ -11,31 +12,12 @@ const TITLES = [
 ];
 
 /**
- * Converts a raw YouTube URL (watch?v=, youtu.be, or already an embed URL)
+ * Converts a raw YouTube URL (watch?v=, youtu.be, shorts, or embed URL)
  * into a valid embed src with autoplay, loop, and no mute (so sound works once user interacts).
  */
 function buildYoutubeEmbedSrc(url, isMuted) {
   if (!url) return '';
-  let videoId = '';
-
-  // Already an embed URL — extract the video ID
-  const embedMatch = url.match(/youtube\.com\/embed\/([^?&]+)/);
-  if (embedMatch) {
-    videoId = embedMatch[1];
-  }
-
-  // Standard watch URL
-  const watchMatch = url.match(/[?&]v=([^&]+)/);
-  if (watchMatch) {
-    videoId = watchMatch[1];
-  }
-
-  // Short URL youtu.be/VIDEO_ID
-  const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
-  if (shortMatch) {
-    videoId = shortMatch[1];
-  }
-
+  const videoId = getYouTubeId(url);
   if (!videoId) return url; // fallback: return as-is (e.g. Vimeo)
 
   const muteParam = isMuted ? '1' : '0';
