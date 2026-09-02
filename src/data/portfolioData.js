@@ -14,7 +14,7 @@ export const portfolioData = {
   },
   stats: [
     { value: "3+", label: "Years Experience" },
-    { value: "$1M+", label: "Ad Spend Managed" },
+    { value: "$500K", label: "Ad Spend Managed" },
     { value: "50+", label: "Brands Scaled" },
     { value: "90%+", label: "Tracking Accuracy" }
   ],

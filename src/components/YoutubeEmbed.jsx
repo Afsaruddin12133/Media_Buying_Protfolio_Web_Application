@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
 import { Play } from 'lucide-react';
+import { useState } from 'react';
 
 /**
- * Extracts the YouTube video ID from a full URL or embed URL.
+ * Extracts the YouTube video ID from any YouTube URL format:
+ * - standard (youtube.com/watch?v=ID)
+ * - shorts (youtube.com/shorts/ID)
+ * - short link (youtu.be/ID)
+ * - embed (youtube.com/embed/ID)
+ * - live stream (youtube.com/live/ID)
  */
-function getYouTubeId(url) {
-  if (!url) return null;
-  // Handle embed URLs: https://www.youtube.com/embed/VIDEO_ID
-  const embedMatch = url.match(/youtube\.com\/embed\/([^?&/]+)/);
-  if (embedMatch) return embedMatch[1];
-  // Handle watch URLs: https://www.youtube.com/watch?v=VIDEO_ID
-  const watchMatch = url.match(/[?&]v=([^&]+)/);
-  if (watchMatch) return watchMatch[1];
-  // Handle short URLs: https://youtu.be/VIDEO_ID
-  const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
-  if (shortMatch) return shortMatch[1];
+export function getYouTubeId(url) {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live|clip)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = trimmed.match(regExp);
+  if (match && match[1]) {
+    return match[1];
+  }
   return null;
 }
 

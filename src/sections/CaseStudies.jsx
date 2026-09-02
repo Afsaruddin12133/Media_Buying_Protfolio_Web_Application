@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import CaseStudyModal from '../components/CaseStudyModal';
-import useScrollReveal from '../hooks/useScrollReveal';
-import { db } from '../firebase';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import CaseStudyModal from '../components/CaseStudyModal';
+import { db } from '../firebase';
+import useScrollReveal from '../hooks/useScrollReveal';
+
+const INITIAL_LIMIT = 6;
 
 export default function CaseStudies() {
   const [caseStudies, setCaseStudies] = useState([]);
   const [selectedStudy, setSelectedStudy] = useState(null);
   const [filter, setFilter] = useState("All");
+  const [showAll, setShowAll] = useState(false);
   const ref = useScrollReveal();
 
   useEffect(() => {
@@ -44,9 +48,17 @@ export default function CaseStudies() {
     window.addEventListener('setCaseStudyFilter', handleFilter);
     return () => window.removeEventListener('setCaseStudyFilter', handleFilter);
   }, [categories]);
+
+  // Reset expansion when category filter changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [filter]);
+
   const filteredStudies = filter === "All" 
     ? caseStudies 
     : caseStudies.filter(study => (study.category || study.industry) === filter);
+
+  const displayedStudies = showAll ? filteredStudies : filteredStudies.slice(0, INITIAL_LIMIT);
 
   return (
     <section id="case-studies" ref={ref} className="py-32 px-6 md:px-12 relative overflow-hidden bg-brandBg border-b border-black/10">
@@ -84,7 +96,7 @@ export default function CaseStudies() {
         {/* Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredStudies.map((study, index) => (
+            {displayedStudies.map((study, index) => (
               <motion.div
                 layout
                 key={study.id}
@@ -138,6 +150,26 @@ export default function CaseStudies() {
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {/* Show More / Show Less Button */}
+        {filteredStudies.length > INITIAL_LIMIT && (
+          <div className="flex justify-end mt-12">
+            <button
+              onClick={() => {
+                if (showAll) {
+                  setShowAll(false);
+                  document.getElementById('case-studies')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setShowAll(true);
+                }
+              }}
+              className="flex items-center gap-3 px-10 py-5 bg-brandAccent text-white hover:bg-black text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_var(--color-brandAccent)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-300 cursor-pointer border border-black"
+            >
+              <span>{showAll ? "Show Less" : `Show More Case Studies (+${filteredStudies.length - INITIAL_LIMIT})`}</span>
+              <ChevronDown size={18} className={`transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+        )}
       </div>
 
       <CaseStudyModal
